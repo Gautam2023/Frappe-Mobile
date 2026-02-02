@@ -121,3 +121,11 @@ def list_timesheets(data=None):
             "Mobile List Timesheets API Error"
         )
         frappe.throw(_("Failed to fetch timesheets"))
+
+@frappe.whitelist()
+def get_projects():
+    return frappe.get_all(
+        "Project",
+        fields=["name"],
+        order_by="name"
+    )
