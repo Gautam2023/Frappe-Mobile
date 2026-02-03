@@ -129,3 +129,27 @@ def get_projects():
         fields=["name"],
         order_by="name"
     )
+
+@frappe.whitelist()
+def get_employees():
+    return frappe.get_all(
+        "Employee",
+        fields=["employee_name"],
+        order_by="employee_name"
+    )
+
+@frappe.whitelist()
+def get_companies():
+    return frappe.get_all(
+        "Company",
+        fields=["name"],
+        order_by="name"
+    )
+
+@frappe.whitelist()
+def get_customers():
+    return frappe.get_all(
+        "Customer",
+        fields=["name"],
+        order_by="name"
+    )
