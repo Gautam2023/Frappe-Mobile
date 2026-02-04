@@ -153,3 +153,11 @@ def get_customers():
         fields=["name"],
         order_by="name"
     )
+
+@frappe.whitelist()
+def get_tasks():
+    return frappe.get_all(
+        "Task",
+        fields=["name"],
+        order_by="name"
+    )
