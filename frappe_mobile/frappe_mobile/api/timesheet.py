@@ -161,3 +161,11 @@ def get_tasks():
         fields=["name"],
         order_by="name"
     )
+
+@frappe.whitelist()
+def get_activity_type():
+    return frappe.get_all(
+        "Activity Type",
+        fields=["name"],
+        order_by="name"
+    )
