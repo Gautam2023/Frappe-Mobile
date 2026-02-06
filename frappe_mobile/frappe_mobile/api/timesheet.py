@@ -134,7 +134,7 @@ def get_projects():
 def get_employees():
     return frappe.get_all(
         "Employee",
-        fields=["employee_name"],
+        fields=["name","employee_name"],
         order_by="employee_name"
     )
 
