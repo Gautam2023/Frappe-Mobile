@@ -197,7 +197,6 @@ def update_timesheet(name, data):
         timesheet.set("time_logs", [])
 
         time_logs = data.get("time_logs")
-
         if not time_logs or not isinstance(time_logs, list):
             frappe.throw(_("At least one time log is required"))
 
@@ -211,6 +210,18 @@ def update_timesheet(name, data):
             if not row.get("description"):
                 frappe.throw(_(f"Row {idx}: Description is required"))
 
+            is_billable = row.get("is_billable")
+            if is_billable in [True, "true", "1", 1]:
+                is_billable = 1
+            else:
+                is_billable = 0
+
+            completed = row.get("completed")
+            if completed in [True, "true", "1", 1]:
+                completed = 1
+            else:
+                completed = 0
+
             timesheet.append("time_logs", {
                 "activity_type": row.get("activity_type"),
                 "from_time": row.get("from_time"),
@@ -218,7 +229,8 @@ def update_timesheet(name, data):
                 "project": row.get("project"),
                 "task": row.get("task"),
                 "description": row.get("description"),
-                "is_billable": row.get("is_billable", 0)
+                "is_billable": is_billable,
+                "completed": completed
             })
 
         timesheet.save()
