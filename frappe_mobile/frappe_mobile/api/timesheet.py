@@ -169,3 +169,68 @@ def get_activity_type():
         fields=["name"],
         order_by="name"
     )
+
+
+@frappe.whitelist()
+def update_timesheet(name, data):
+    try:
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        if not name:
+            frappe.throw(_("Timesheet name is required"))
+
+        current_employee = frappe.db.get_value(
+            "Employee",
+            {"user_id": frappe.session.user},
+            "name"
+        )
+
+        timesheet = frappe.get_doc("Timesheet", name)
+
+        if timesheet.employee != current_employee:
+            frappe.throw(_("You can only update your own timesheet"))
+
+        if data.get("parent_project"):
+            timesheet.parent_project = data.get("parent_project")
+
+        timesheet.set("time_logs", [])
+
+        time_logs = data.get("time_logs")
+
+        if not time_logs or not isinstance(time_logs, list):
+            frappe.throw(_("At least one time log is required"))
+
+        for idx, row in enumerate(time_logs, start=1):
+            if not row.get("from_time") or not row.get("to_time"):
+                frappe.throw(_(f"Row {idx}: From Time and To Time are required"))
+
+            if not row.get("task"):
+                frappe.throw(_(f"Row {idx}: Task is required"))
+
+            if not row.get("description"):
+                frappe.throw(_(f"Row {idx}: Description is required"))
+
+            timesheet.append("time_logs", {
+                "activity_type": row.get("activity_type"),
+                "from_time": row.get("from_time"),
+                "to_time": row.get("to_time"),
+                "project": row.get("project"),
+                "task": row.get("task"),
+                "description": row.get("description"),
+                "is_billable": row.get("is_billable", 0)
+            })
+
+        timesheet.save()
+
+        return {
+            "status": "success",
+            "timesheet": timesheet.name
+        }
+
+    except frappe.PermissionError:
+        frappe.throw(_("You do not have permission to update this Timesheet"))
+
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Mobile Update Timesheet API Error")
+        frappe.throw(_("Failed to update timesheet"))
